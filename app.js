@@ -10,16 +10,21 @@ const first = ME.name.split(" ")[0];
 const has = (q, ...w) => w.some(x => q.includes(x));
 function reply(q) {
   q = q.toLowerCase();
-  if (has(q,"hi","hello","hey")) return ME.chat.hello.replace("{first}", first);
-  if (has(q,"project","work","built","portfolio")) return "Recent work: " + ME.projects.map(p => p.t).join(", ") + ". Scroll to the Work section for details!";
-  if (has(q,"skill","stack","tech","tools")) return "Main stack: " + ME.skills.join(", ") + ".";
-  if (has(q,"hire","available","freelance","job")) return ME.chat.hire;
-  if (has(q,"contact","email","reach","mail")) return `You can reach ${ME.name.split(" ")[0]} at ${ME.email}.`;
-  if (has(q,"where","location","city","based")) return `Based in ${ME.city}, working with teams worldwide.`;
-  if (has(q,"experience","years")) return `${ME.stats[0][0]} years of building products across web and design.`;
+  const c = ME.chat, x0 = ME.experience[0], ed = ME.education[0];
+  if (/\b(hi|hello|hey)\b/.test(q)) return c.hello.replace("{first}", first);
+  if (has(q,"experience","cognizant","career","intern","company","employer","do you work","current role","what do you do")) return `${first} is a ${x0.role} at ${x0.org} (${x0.period}). Before that: ${ME.experience.slice(1).map(x => x.role).join(", ")}. See the Experience section for details.`;
+  if (has(q,"education","college","degree","study","university","school","graduat")) return `${ed.degree} at ${ed.school} (${ed.period}).`;
+  if (has(q,"certif","course")) return "Certifications: " + ME.certifications.join(", ") + ".";
+  if (has(q,"language","speak")) return "Languages: " + ME.languages.map(l => l[0] + " (" + l[1] + ")").join(", ") + ".";
+  if (has(q,"leader","community","sigma","mlsa")) return ME.leadership.map(l => l.t + ": " + l.d).join(" ");
+  if (has(q,"project","work","built","portfolio")) return "Selected work: " + ME.projects.map(p => p.t).join(", ") + ". Scroll to the Work section for details!";
+  if (has(q,"skill","stack","tech","tools")) return "Main skills: " + ME.skills.join(", ") + ".";
+  if (has(q,"hire","available","freelance","job")) return c.hire;
+  if (has(q,"contact","email","reach","mail","linkedin")) return `You can reach ${first} at ${ME.email}, or on LinkedIn.`;
+  if (has(q,"where","location","city","based")) return `Based in ${ME.city}.`;
   if (has(q,"who","about","yourself")) return ME.bio;
   if (has(q,"thank")) return "Anytime! 🖤";
-  return ME.chat.fallback;
+  return c.fallback;
 }
 
 function Reveal({ children, className = "" }) {
@@ -83,7 +88,7 @@ function Hero() {
     <section id="home" className="hero">
       <div className="badge"><i className="dot" /> {ME.badge}</div>
       <h1 aria-label={ME.name}><Typed text={ME.name} /></h1>
-      <p className="lead">{ME.role}. {ME.bio}</p>
+      <p className="lead">{ME.heroText}</p>
       <div className="btns">
         <a className="btn" href="#work">View my work ↗</a>
         <a className="btn ghost" href="#contact">Let’s talk</a>
@@ -112,8 +117,8 @@ function Portrait() {
       <div className="pf-frame">
         {src ? <img src={src} alt={ME.name} /> : (
           <div className="pf-ph">
-            <svg viewBox="0 0 100 100" width="42%" fill="currentColor"><circle cx="50" cy="36" r="17" /><path d="M14 92c0-20 16-32 36-32s36 12 36 32z" /></svg>
-            <label className="btn ghost pf-up">Add your photo<input type="file" accept="image/*" onChange={pick} hidden /></label>
+            <span className="pf-ini">{ME.name.split(" ")[0][0] + ME.name.split(" ").slice(-1)[0][0]}</span>
+            {location.search.includes("edit") && <label className="btn ghost pf-up">Preview a photo<input type="file" accept="image/*" onChange={pick} hidden /></label>}
           </div>
         )}
         <div className="pf-fade" />
@@ -136,6 +141,55 @@ function About() {
         <div className="about"><Portrait />
           <p>{ME.bio} {ME.aboutExtra}</p>
           <div className="tags">{ME.skills.map(s => <span className="tag" key={s}>{s}</span>)}</div>
+        </div>
+      </Reveal>
+    </section>
+  );
+}
+
+function Experience() {
+  return (
+    <section id="experience">
+      <Reveal>
+        <div className="mono">{ME.sections.experience[0]}</div>
+        <h2>{ME.sections.experience[1]}</h2>
+        <div className="xp">
+          {ME.experience.map(x => (
+            <div className="xp-item" key={x.role + x.period}>
+              <div className="xp-head">
+                <div><h3>{x.role}</h3><p className="xp-org">{x.org} · {x.place}</p></div>
+                <span className="xp-per">{x.period}</span>
+              </div>
+              <ul>{x.points.map(p => <li key={p[0]}><b>{p[0]}:</b> {p[1]}</li>)}</ul>
+            </div>
+          ))}
+        </div>
+      </Reveal>
+    </section>
+  );
+}
+
+function Education() {
+  return (
+    <section id="education">
+      <Reveal>
+        <div className="mono">{ME.sections.education[0]}</div>
+        <h2>{ME.sections.education[1]}</h2>
+        <div className="edu">
+          {ME.education.map(e => (
+            <div className="xp-item" key={e.school}>
+              <span className="xp-per">{e.period}</span>
+              <h3>{e.school}</h3><p className="xp-org">{e.degree}</p>
+            </div>
+          ))}
+        </div>
+        <h3 className="sub">{ME.labels.certifications}</h3>
+        <div className="tags">{ME.certifications.map(c => <span className="tag" key={c}>{c}</span>)}</div>
+        <h3 className="sub">{ME.labels.languages}</h3>
+        <div className="tags">{ME.languages.map(l => <span className="tag" key={l[0]}>{l[0]} · {l[1]}</span>)}</div>
+        <h3 className="sub">{ME.labels.leadership}</h3>
+        <div className="edu">
+          {ME.leadership.map(l => <div className="xp-item" key={l.t}><h3>{l.t}</h3><p className="xp-org">{l.d}</p></div>)}
         </div>
       </Reveal>
     </section>
@@ -245,7 +299,7 @@ function App() {
       </button>
       <Hero /><About />
       <div className="marq"><div>{items.map((s, i) => <span key={i}>{s} ✦</span>)}</div></div>
-      <Work /><Contact />
+      <Experience /><Work /><Education /><Contact />
       <footer>{ME.footer.replace("{name}", ME.name)}</footer>
       {ME.chat.enabled && <Chat />}
     </>
