@@ -10,7 +10,7 @@ window.CONFIG = {
   tagline: "Moment Contact Center | Conversational AI | Python",
   city: "Bengaluru, Karnataka, India",
   email: "naizilfrancis07@gmail.com",
-  photo: "",                            // e.g. "images/photo.jpg" (put the file in the images folder)
+  photo: "images/photo.jpeg",                            // e.g. "images/photo.jpg" (put the file in the images folder)
 
   /* ---- Text ---- */
   badge: "Programmer Analyst @ Cognizant",
